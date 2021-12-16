@@ -17,15 +17,6 @@ startProgram();
 
 async function startProgram() {
 
-
-
-
-
-
-
-  
-  // console.table(rows);
-
   const { choice } = await inquirer.prompt([{
 
     name: "choice",
@@ -39,15 +30,17 @@ async function startProgram() {
 
     case "View all employees":
 
-      viewEmployees()
+      viewEmployees();
       break;
 
     case "View all roles":
 
+    viewRoles();
       break;
 
     case "View all departments":
 
+      viewDepartments();
       break;
 
     case "Add an employee":
@@ -75,6 +68,8 @@ async function startProgram() {
 
 };
 
+// ========== VIEW FUNCTIONS ==========
+
 const viewEmployees = async () => {
 
   // create connection
@@ -86,7 +81,7 @@ const viewEmployees = async () => {
       database: "employee_db",
     },
 
-    console.log(`Connected to the employee_db database.`)
+    // console.log(`Connected to the employee_db database.`)
 
   );
 
@@ -97,6 +92,53 @@ const viewEmployees = async () => {
   console.table(rows);
 
 }
+const viewRoles = async () => {
+
+  // create connection
+  const connection = await mysql.createConnection(
+    {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "employee_db",
+    },
+
+    // console.log(`Connected to the employee_db database.`)
+
+  );
+
+  // query database
+
+  const [rows, fields] = await connection.execute("SELECT * FROM roles;");
+
+  console.table(rows);
+
+}
+const viewDepartments = async () => {
+
+  // create connection
+  const connection = await mysql.createConnection(
+    {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "employee_db",
+    },
+
+    // console.log(`Connected to the employee_db database.`)
+
+  );
+
+  // query database
+
+  const [rows, fields] = await connection.execute("SELECT * FROM departments;");
+
+  console.table(rows);
+
+}
+
+
+// ========== POST FUNCTIONS ==========
 
 
 
@@ -104,10 +146,7 @@ const viewEmployees = async () => {
 
 
 
-
-
-
-
+//  ========= UPDATE FUNCTIONS ==========
 
 const updateRole = async () => {
 
@@ -126,7 +165,7 @@ const updateRole = async () => {
 
   // query database
 
-  const [rows, fields] = await connection.execute("SELECT * FROM employee;");
+  const [rows, fields] = await connection.execute("SELECT * FROM employees;");
 
   const newChoices = rows.map((employee) => ({ name: employee.name, value: employee }))
 
@@ -154,7 +193,7 @@ const updateRole = async () => {
 
 
 
-
+// ========= OTHER ==========
 
 // Default response for any other request (Not Found)
 app.use((req, res) => {
