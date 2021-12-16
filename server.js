@@ -22,7 +22,7 @@ async function startProgram() {
   const { choice } = await inquirer.prompt([{
 
     name: "choice",
-    tyope: "list",
+    type: "list",
     message: "What do you like to do?",
     choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"]
 
@@ -31,19 +31,93 @@ async function startProgram() {
   console.log(choice);
 
   switch (choice) {
+
+    case "View all employees":
+      
+      viewEmployees()
+      break;
+
+    case "View all roles":
+
+      break;
+
     case "View all departments":
+
+      break;
+
+    case "Add an employee":
+
+      break;
+
+    case "Add a role":
+
+      break;
+
+    case "Add a department":
+
+      break;
+
+    case "Update an employee role":
 
       updateRole()
       break;
 
     default:
+
       break;
 
   }
 
+};
+
+const viewEmployees = async () => {
+
+  // create connection
+  const connection = await mysql.createConnection(
+    {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "employee_db",
+    },
+
+    console.log(`Connected to the classlist_db database.`)
+
+  );
+
+  // query database
+
+  const [rows, fields] = await connection.execute("SELECT * FROM employees;");
+
+  const newChoices = rows.map((employee) => ({ name: employee.name, value: employee }))
+
+  console.table(newChoices);
+
+  const { choice } = await inquirer.prompt([{
+
+    name: "choice",
+    tyope: "list",
+    message: "Which employee role do you want to update?",
+    choices: newChoices
+
+  }])
+
+  console.log(choice);
+
 }
 
-async function updateRole() {
+
+
+
+
+
+
+
+
+
+
+
+const updateRole = async () => {
 
   // create connection
   const connection = await mysql.createConnection(
@@ -78,6 +152,16 @@ async function updateRole() {
   console.log(choice);
 
 }
+
+
+
+
+
+
+
+
+
+
 
 
 // Default response for any other request (Not Found)
