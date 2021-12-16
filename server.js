@@ -17,23 +17,28 @@ startProgram();
 
 async function startProgram() {
 
-  console.table(rows);
+
+
+
+
+
+
+  
+  // console.table(rows);
 
   const { choice } = await inquirer.prompt([{
 
     name: "choice",
     type: "list",
-    message: "What do you like to do?",
-    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"]
+    message: "What would you like to do?",
+    choices: ["View all employees", "View all roles", "View all departments", "Add an employee", "Add a role", "Add a department", "Update an employee role"]
 
   }])
-
-  console.log(choice);
 
   switch (choice) {
 
     case "View all employees":
-      
+
       viewEmployees()
       break;
 
@@ -81,7 +86,7 @@ const viewEmployees = async () => {
       database: "employee_db",
     },
 
-    console.log(`Connected to the classlist_db database.`)
+    console.log(`Connected to the employee_db database.`)
 
   );
 
@@ -89,20 +94,7 @@ const viewEmployees = async () => {
 
   const [rows, fields] = await connection.execute("SELECT * FROM employees;");
 
-  const newChoices = rows.map((employee) => ({ name: employee.name, value: employee }))
-
-  console.table(newChoices);
-
-  const { choice } = await inquirer.prompt([{
-
-    name: "choice",
-    tyope: "list",
-    message: "Which employee role do you want to update?",
-    choices: newChoices
-
-  }])
-
-  console.log(choice);
+  console.table(rows);
 
 }
 
@@ -128,7 +120,7 @@ const updateRole = async () => {
       database: "employee_db",
     },
 
-    console.log(`Connected to the classlist_db database.`)
+    console.log(`Connected to the employee_db database.`)
 
   );
 
