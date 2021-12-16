@@ -1,5 +1,5 @@
 // ===== NODE MODULES ======
-const express = require('express');
+const express = require("express");
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
 
@@ -17,56 +17,66 @@ startProgram();
 
 async function startProgram() {
 
-  const { choice } = await inquirer.prompt([{
-
+  const { choice } = await inquirer.prompt([
+    
+    {
+      
     name: "choice",
     type: "list",
     message: "What would you like to do?",
     choices: ["View all employees", "View all roles", "View all departments", "Add an employee", "Add a role", "Add a department", "Update an employee role"]
 
-  }])
+    }
 
-  switch (choice) {
+  ])
 
-    case "View all employees":
+    switch (choice) {
+  
+      case "View all employees":
+  
+        viewEmployees();
+        break;
+  
+      case "View all roles":
+  
+        viewRoles();
+        break;
+  
+      case "View all departments":
+  
+        viewDepartments();
+        break;
+  
+      case "Add an employee":
 
-      viewEmployees();
-      break;
+        addEmployee();
+        break;
+  
+      case "Add a role":
+        
+        addRole();
+        break;
+  
+      case "Add a department":
 
-    case "View all roles":
+        addDepartment();
+        break;
+  
+      case "Update an employee role":
+  
+        updateRole()
+        break;
+  
+      default:
+  
+        break;
+  
+    }
 
-    viewRoles();
-      break;
+  };
 
-    case "View all departments":
 
-      viewDepartments();
-      break;
 
-    case "Add an employee":
-
-      break;
-
-    case "Add a role":
-
-      break;
-
-    case "Add a department":
-
-      break;
-
-    case "Update an employee role":
-
-      updateRole()
-      break;
-
-    default:
-
-      break;
-
-  }
-
-};
 
 // ========== VIEW FUNCTIONS ==========
 
@@ -91,7 +101,10 @@ const viewEmployees = async () => {
 
   console.table(rows);
 
-}
+  startProgram();
+
+};
+
 const viewRoles = async () => {
 
   // create connection
@@ -113,7 +126,10 @@ const viewRoles = async () => {
 
   console.table(rows);
 
-}
+  startProgram();
+
+};
+
 const viewDepartments = async () => {
 
   // create connection
@@ -135,12 +151,58 @@ const viewDepartments = async () => {
 
   console.table(rows);
 
+  startProgram();
+
 }
 
 
 // ========== POST FUNCTIONS ==========
 
+const addEmployee = async () => {
 
+  // create connection
+  const connection = await mysql.createConnection(
+    {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "employee_db",
+    },
+
+    console.log(`Connected to the employee_db database.`)
+
+  );
+
+  const {first_name, last_name, roles_id} = await inquirer.prompt([
+    {
+      name: "first_name",
+      type: "input",
+      message: "Please enter the employee's first name: ",
+    },
+    {
+      name: "last_name",
+      type: "input",
+      message: "Please enter the employee's last name: ",
+    },
+    {
+      name: "roles_id",
+      type: "input",
+      message: "Please enter the employee's role_id: ",
+    }
+])
+
+  // query database
+
+  let [rows, fields] = await connection.execute(`INSERT INTO employees (first_name, last_name, roles_id) VALUES ("${first_name}", "${last_name}", ${roles_id});`);
+
+  [rows, fields] = await connection.execute("SELECT * FROM employees;");
+
+  console.table(rows);
+  
+  startProgram();
+
+
+}
 
 
 
@@ -183,17 +245,6 @@ const updateRole = async () => {
   console.log(choice);
 
 }
-
-
-
-
-
-
-
-
-
-
-// ========= OTHER ==========
 
 // Default response for any other request (Not Found)
 app.use((req, res) => {
