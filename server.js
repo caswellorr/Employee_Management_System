@@ -14,22 +14,27 @@ app.use(express.json());
 
 // ===== CONNECT TO DATABSE =======
 
-const database = mysql.createConnection(
+let database;
 
-  {
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "employee_db",
-  },
+const connectDatabase = async () => {
 
-);
+  database = await mysql.createConnection(
+    {
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "employee_db",
+    },
+  
+  );
+
+} 
+  
+connectDatabase();
 
 // ======== INITIALIZE PROGRAM ========
 
-startProgram();
-
-async function startProgram() {
+const startProgram = async () => {
 
   const { choice } = await inquirer.prompt([
 
@@ -54,7 +59,7 @@ async function startProgram() {
 
     case "View all employees":
 
-      viewEmployees(startProgram, database);
+      viewEmployees();
       break;
 
     case "View all roles":
@@ -95,12 +100,14 @@ async function startProgram() {
 
 };
 
+startProgram();
+
 // ========== VIEW FUNCTIONS ==========
 
 const viewEmployees = async () => {
 
   // query database
-  const [rows, fields] = await (await database).execute("SELECT * FROM employees;");
+  const [rows, fields] = await database.execute("SELECT * FROM employees;");
 
   console.table(rows);
 
@@ -112,7 +119,7 @@ const viewRoles = async () => {
 
   // query database
 
-  const [rows, fields] = await (await database).execute("SELECT * FROM roles;");
+  const [rows, fields] = await database.execute("SELECT * FROM roles;");
 
   console.table(rows);
 
@@ -124,7 +131,7 @@ const viewDepartments = async () => {
 
   // query database
 
-  const [rows, fields] = await (await database).execute("SELECT * FROM departments;");
+  const [rows, fields] = await database.execute("SELECT * FROM departments;");
 
   console.table(rows);
 
@@ -136,7 +143,7 @@ const viewDepartments = async () => {
 
 const addEmployee = async () => {
 
-  const { first_name, last_name, roles_id } = await inquirer.prompt([
+  const { first_name, last_name, role } = await inquirer.prompt([
     {
       name: "first_name",
       type: "input",
@@ -148,7 +155,7 @@ const addEmployee = async () => {
       message: "Please enter the employee's last name: ",
     },
     {
-      name: "roles_id",
+      name: "role",
       type: "input",
       message: "Please enter the employee's role: ",
     }
@@ -156,9 +163,9 @@ const addEmployee = async () => {
 
   // query database
 
-  let [rows, fields] = await (await database).execute(`INSERT INTO employees (first_name, last_name, roles_id) VALUES (?, ?, ?)`, [first_name, last_name, roles_id]);
+  let [rows, fields] = await database.execute(`INSERT INTO employees (first_name, last_name, roles_id) VALUES (?, ?, ?)`, [first_name, last_name, role]);
 
-  [rows, fields] = await (await database).execute("SELECT * FROM employees;");
+  [rows, fields] = await database.execute("SELECT * FROM employees;");
 
   console.table(rows);
 
@@ -190,9 +197,9 @@ const addRole = async () => {
 
   // query database
 
-  let [rows, fields] = await (await database).execute(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [title, salary, department]);
+  let [rows, fields] = await database.execute(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [title, salary, department]);
 
-  [rows, fields] = await (await database).execute("SELECT * FROM roles;");
+  [rows, fields] = await database.execute("SELECT * FROM roles;");
 
   console.table(rows);
 
@@ -212,9 +219,9 @@ const addDepartment = async () => {
 
   // query database
 
-  let [rows, fields] = await (await database).execute(`INSERT INTO departments (name) VALUE (?)`, [name]);
+  let [rows, fields] = await database.execute(`INSERT INTO departments (name) VALUE (?)`, [name]);
 
-  [rows, fields] = await (await database).execute("SELECT * FROM departments;");
+  [rows, fields] = await database.execute("SELECT * FROM departments;");
 
   console.table(rows);
 
@@ -228,22 +235,40 @@ const updateRole = async () => {
   
   // query database
 
-  const [rows, fields] = await (await database).execute("SELECT * FROM employees;");
+  let [employees, fields] = await database.execute("SELECT * FROM employees;");
+  // console.log('employees', employees);
 
-  const newChoices = rows.map((employee) => ({ name: employee.name, value: employee }))
+  const newChoices = employees.map((employee) => ({ name: employee.first_name, value: employee.id }))
 
   console.table(newChoices);
-
+console.log("hello world")
   const { choice } = await inquirer.prompt([{
 
     name: "choice",
-    tyope: "list",
+    type: "list",
     message: "Which employee role do you want to update?",
     choices: newChoices
 
   }])
-
   console.log(choice);
+
+  let [roleRows, roleFields] = await database.execute("SELECT * FROM roles;");
+  console.table(roleRows);
+
+  const roles = roleRows.map((role) => ({name: role.title, value: role.id}));
+
+  const { newChoice } = await inquirer.prompt([{
+
+    name: "newChoice",
+    type: "list",
+    message: "Which employee role do you want to update?",
+    choices: roles
+
+  }])
+
+
+
+  let [newRows, newFields] = await database.execute("UPDATE employees SET ? WHERE ?", [{role_id:newChoice},{id:choice}]);
 
 };
 
